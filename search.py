@@ -9,6 +9,14 @@ CUTOFF = object()
 FAILURE = object()
 
 
+def recordFailure(pegSol):
+	"""
+	Mark a Peg Solitaire game as failed (impossible to solve) by setting the
+	trace to an error message instead of a list of moves.
+	"""
+	pegSol.trace = "Impossible to solve"
+
+
 def ItrDeepSearch(pegSol):
 	"""
 	Perform an iterative-deepening depth-first search on the game tree of the
@@ -38,14 +46,16 @@ def ItrDeepSearch(pegSol):
 	# SEE example in the PDF to see what to save
 	#
 	#################################################
-	depth = 0
 	failed = set()
-	while True:
+	# Without a maximum depth, impossible games would infintely loop
+	maxDepth = sum(row.count(1) for row in pegSol.gameState)
+	for depth in xrange(maxDepth):
 		# DepthLimitedSearch eventually calls getNextState and saves the move trace
 		result = DepthLimitedSearch(pegSol, depth, failed)
-		if result not in [CUTOFF, FAILURE]:
+		if result is not CUTOFF and result is not FAILURE:
 			return True
-		depth += 1
+	recordFailure(pegSol)
+	return False
 
 	# Since the depth of a Peg Solitaire solution is known to be one less than
 	# the number of initial pegs, iterative deepening does not actually perform
@@ -94,9 +104,9 @@ def RecursiveDLS(node, pegSol, limit, explored, failed):
 		if childNode.key in explored:
 			continue
 		result = RecursiveDLS(childNode, pegSol, limit - 1, explored, failed)
-		if result == CUTOFF:
+		if result is CUTOFF:
 			cut_off = True
-		elif result == FAILURE:
+		elif result is FAILURE:
 			failed.add(childNode.key)
 		else:
 			return result
@@ -132,7 +142,10 @@ def aStarOne(pegSol):
 	#
 	#################################################
 	# UniformCostSearch eventually calls getNextState and saves the move trace
-	return UniformCostSearch(pegSol, heuristicOne)
+	if UniformCostSearch(pegSol, heuristicOne) is FAILURE:
+		recordFailure(pegSol)
+		return False
+	return True
 
 
 def aStarTwo(pegSol):
@@ -164,7 +177,10 @@ def aStarTwo(pegSol):
 	#
 	#################################################
 	# UniformCostSearch eventually calls getNextState and saves the move trace
-	return UniformCostSearch(pegSol, heuristicTwo)
+	if UniformCostSearch(pegSol, heuristicTwo) is FAILURE:
+		recordFailure(pegSol)
+		return False
+	return True
 
 
 def UniformCostSearch(pegSol, heuristic=None):
