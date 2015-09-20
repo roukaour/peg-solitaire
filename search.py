@@ -274,7 +274,8 @@ def heuristicTwo(node):
 	Return a heuristic estimate of the cost of solving the given game node.
 	This heuristic sums the estimated difficulty of removing each peg, where
 	the difficulty is set at 4 for the outer corners of the plus-shaped board,
-	3 for the inner corners, 1 for the center, and 0 for the other holes.
+	3 for the inner corners, 1 for the center, and 0 for the other holes,
+	and adds it to twice the number of pegs remaining on the board.
 	I chose those values after some trial and error. Clearly the outer corners
 	are the most difficult, since they are the least maneuverable. The inner
 	corners are only slightly easier, since they have more neighbors but are
@@ -290,7 +291,7 @@ def heuristicTwo(node):
 	state = node.state
 	# Since pegs are 1s and holes are 0s, counting the pegs is equivalent to
 	# summing the states, and the difficulty per peg can be factored out
-	return (
+	return node.pegCount * 2 + (
 		# The eight outer corners are worth 4 each
 		4 * (state[2] + state[4] + state[14] + state[20] +
 			state[28] + state[34] + state[44] + state[46]) +
