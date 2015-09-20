@@ -50,7 +50,7 @@ def main(args):
 		print "Trace: " + str(gameATwoObject.trace)
 
 
-	# TODO: remove me in final submission
+	# TODO: remove this from the final submission
 	if not flag or flag == 4:
 		#AStar with third Heuristic
 		tic = time.clock()
@@ -65,7 +65,7 @@ def main(args):
 		print "Trace: " + str(gameAThreeObject.trace)
 
 
-	# TODO: remove me in final submission
+	# TODO: remove this from the final submission
 	if not flag or flag == 5:
 		#AStar with fourth Heuristic
 		tic = time.clock()
@@ -80,10 +80,25 @@ def main(args):
 		print "Trace: " + str(gameAFourObject.trace)
 
 
+	# TODO: remove this from the final submission
+	if not flag or flag == 6:
+		#AStar with baseline Heuristic
+		tic = time.clock()
+		gameABaselineObject = pegSolitaireUtils.game(args.input)
+		search.aStarBaseline(gameABaselineObject)
+		toc = time.clock()
+		timeABaseline = toc - tic
+
+		print "Astar Baseline Search:"
+		print "Execution Time: " + str(timeABaseline)
+		print "Nodes Expanded: " + str(gameABaselineObject.nodesExpanded)
+		print "Trace: " + str(gameABaselineObject.trace)
+
+
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="HomeWork One")
-	parser.add_argument("--input", type = str)
-	parser.add_argument("--flag", type = int)
+	parser.add_argument("--input", type=str)
+	parser.add_argument("--flag", type=int)
 	args = parser.parse_args()
 	main(args)
 	#import cProfile

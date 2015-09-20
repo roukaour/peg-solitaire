@@ -202,7 +202,7 @@ def aStarThree(pegSol):
 	# use them.
 	# In this function you'll start from initial gameState
 	# and will keep searching and expanding tree until you
-	# reach goal using A-Star searching with first Heuristic
+	# reach goal using A-Star searching with third Heuristic
 	# you used.
 	# you must save the trace of the execution in pegSolitaireObject.trace
 	# SEE example in the PDF to see what to return
@@ -233,13 +233,44 @@ def aStarFour(pegSol):
 	# use them.
 	# In this function you'll start from initial gameState
 	# and will keep searching and expanding tree until you
-	# reach goal using A-Star searching with first Heuristic
+	# reach goal using A-Star searching with fourth Heuristic
 	# you used.
 	# you must save the trace of the execution in pegSolitaireObject.trace
 	# SEE example in the PDF to see what to return
 	#
 	#################################################
 	if UniformCostSearch(pegSol, heuristicFour) is FAILURE:
+		recordFailure(pegSol)
+		return False
+	return True
+
+
+def aStarBaseline(pegSol):
+	"""
+	Perform an A* search using a baseline heuristic on the game tree of the
+	given Peg Solitaire game, and return either the updated game or FAILURE.
+	"""
+	#################################################
+	# Must use functions:
+	# getNextState(self,oldPos, direction)
+	#
+	# we are using this function to count,
+	# number of nodes expanded, If you'll not
+	# use this grading will automatically turned to 0
+	#################################################
+	#
+	# using other utility functions from pegSolitaireUtility.py
+	# is not necessary but they can reduce your work if you
+	# use them.
+	# In this function you'll start from initial gameState
+	# and will keep searching and expanding tree until you
+	# reach goal using A-Star searching with baseline Heuristic
+	# you used.
+	# you must save the trace of the execution in pegSolitaireObject.trace
+	# SEE example in the PDF to see what to return
+	#
+	#################################################
+	if UniformCostSearch(pegSol, heuristicBaseline) is FAILURE:
 		recordFailure(pegSol)
 		return False
 	return True
@@ -407,3 +438,10 @@ def heuristicFour(node):
 	# ]
 	# state = node.state
 	# return node.pegCount * 2 + sum(corners[k] for k in xrange(49) if state[k] == 1)
+
+def heuristicBaseline(node):
+	"""
+	Return a heuristic estimate of the cost of solving the given game node.
+	This heuristic counts the number of pegs remaining on the board.
+	"""
+	return node.pegCount
