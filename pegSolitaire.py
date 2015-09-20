@@ -21,6 +21,7 @@ def main(args):
 		print "Nodes Expanded: " + str(gameItrObject.nodesExpanded)
 		print "Trace: " + str(gameItrObject.trace) + '\n'
 
+
 	if not flag or flag == 2:
 		#Astar with first heuristic
 		tic = time.clock()
@@ -53,31 +54,30 @@ def main(args):
 	if not flag or flag == 4:
 		#AStar with third Heuristic
 		tic = time.clock()
-		gameATwoObject = pegSolitaireUtils.game(args.input)
-		search.aStarThree(gameATwoObject)
+		gameAThreeObject = pegSolitaireUtils.game(args.input)
+		search.aStarThree(gameAThreeObject)
 		toc = time.clock()
-		timeATwo = toc - tic
+		timeAThree = toc - tic
 
-		print "Astar Two Search:"
-		print "Execution Time: " + str(timeATwo)
-		print "Nodes Expanded: " + str(gameATwoObject.nodesExpanded)
-		print "Trace: " + str(gameATwoObject.trace)
+		print "Astar Three Search:"
+		print "Execution Time: " + str(timeAThree)
+		print "Nodes Expanded: " + str(gameAThreeObject.nodesExpanded)
+		print "Trace: " + str(gameAThreeObject.trace)
 
 
 	# TODO: remove me in final submission
 	if not flag or flag == 5:
 		#AStar with fourth Heuristic
 		tic = time.clock()
-		gameATwoObject = pegSolitaireUtils.game(args.input)
-		search.aStarFour(gameATwoObject)
+		gameAFourObject = pegSolitaireUtils.game(args.input)
+		search.aStarFour(gameAFourObject)
 		toc = time.clock()
-		timeATwo = toc - tic
+		timeAFour = toc - tic
 
-		print "Astar Two Search:"
-		print "Execution Time: " + str(timeATwo)
-		print "Nodes Expanded: " + str(gameATwoObject.nodesExpanded)
-		print "Trace: " + str(gameATwoObject.trace)
-
+		print "Astar Four Search:"
+		print "Execution Time: " + str(timeAFour)
+		print "Nodes Expanded: " + str(gameAFourObject.nodesExpanded)
+		print "Trace: " + str(gameAFourObject.trace)
 
 
 if __name__ == "__main__":
