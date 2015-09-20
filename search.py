@@ -183,6 +183,76 @@ def aStarTwo(pegSol):
 	return True
 
 
+def aStarThree(pegSol):
+	"""
+	Perform an A* search using heuristic #2 on the game tree of the given Peg
+	Solitaire game, and return either the updated game or FAILURE.
+	This is the only search function capable of solving the "central game"
+	(all holes filled with pegs except the center hole) in a reasonable
+	amount of time (expanding only 225 nodes).
+	"""
+	#################################################
+	# Must use functions:
+	# getNextState(self,oldPos, direction)
+	#
+	# we are using this function to count,
+	# number of nodes expanded, If you'll not
+	# use this grading will automatically turned to 0
+	#################################################
+	#
+	# using other utility functions from pegSolitaireUtility.py
+	# is not necessary but they can reduce your work if you
+	# use them.
+	# In this function you'll start from initial gameState
+	# and will keep searching and expanding tree until you
+	# reach goal using A-Star searching with second Heuristic
+	# you used.
+	# you must save the trace of the execution in pegSolitaireObject.trace
+	# SEE example in the PDF to see what to return
+	#
+	#################################################
+	# UniformCostSearch eventually calls getNextState and saves the move trace
+	if UniformCostSearch(pegSol, heuristicThree) is FAILURE:
+		recordFailure(pegSol)
+		return False
+	return True
+
+
+def aStarFour(pegSol):
+	"""
+	Perform an A* search using heuristic #2 on the game tree of the given Peg
+	Solitaire game, and return either the updated game or FAILURE.
+	This is the only search function capable of solving the "central game"
+	(all holes filled with pegs except the center hole) in a reasonable
+	amount of time (expanding only 225 nodes).
+	"""
+	#################################################
+	# Must use functions:
+	# getNextState(self,oldPos, direction)
+	#
+	# we are using this function to count,
+	# number of nodes expanded, If you'll not
+	# use this grading will automatically turned to 0
+	#################################################
+	#
+	# using other utility functions from pegSolitaireUtility.py
+	# is not necessary but they can reduce your work if you
+	# use them.
+	# In this function you'll start from initial gameState
+	# and will keep searching and expanding tree until you
+	# reach goal using A-Star searching with second Heuristic
+	# you used.
+	# you must save the trace of the execution in pegSolitaireObject.trace
+	# SEE example in the PDF to see what to return
+	#
+	#################################################
+	# UniformCostSearch eventually calls getNextState and saves the move trace
+	if UniformCostSearch(pegSol, heuristicFour) is FAILURE:
+		recordFailure(pegSol)
+		return False
+	return True
+
+
 def UniformCostSearch(pegSol, heuristic=None):
 	"""
 	Perform a uniform-cost search (with an optional cost heuristic) of the game
@@ -292,3 +362,56 @@ def heuristicTwo(node):
 	# ]
 	# state = node.state
 	# return sum(difficulties[k] for k in xrange(49) if state[k] == 1)
+
+def heuristicThree(node):
+	"""
+	Jian: This is actually the first heruistic in my implementation.
+
+	Return a heuristic estimate of the cost of solving the given game node.
+	This heuristic included two parts. The first one is how many pegs are left
+	on board, and the second part is how many dangling pegs are left.
+	"""
+	# Store node.state locally to avoid repeated LOAD_ATTR instructions
+	state = node.state
+
+	num_dangling = 0
+	for i in range(49):
+		if node[i] != 1:
+			continue
+
+		is_dangling = True
+		for direction in [7, 1, -7, -1]:
+			if node[i + direction] == 1:
+				is_dangling = False
+				break
+		num_dangling += 1 if is_dangling else 0
+
+	return sum([x for x in state if x != -1])*2 + num_dangling
+
+def heuristicFour(node):
+	"""
+	Jian: This is actually the second heruistic in my implementation.
+
+	Return a heuristic estimate of the cost of solving the given game node.
+	This heuristic included two parts. The first one is how many pegs are left
+	on board, and the second part is how many pegs are left in the four corner
+	rectagles.
+	"""
+	# Store node.state locally to avoid repeated LOAD_ATTR instructions
+	state = node.state
+
+	return sum([x for x in state if x != -1])*2 +\
+		   sum(state) - (-1) * 4 * 4 -\
+		   sum([state[x] for x in [16, 17, 18, 23, 24, 25, 30, 31, 32]])
+
+	# This second part of the estimate function is similiar with other
+	# difficulties based methods with the following matrix.
+	# difficulties = [
+	# 	0, 0, 1, 1, 1, 0, 0,
+	# 	0, 0, 1, 1, 1, 0, 0,
+	# 	1, 1, 0, 0, 0, 1, 1,
+	# 	1, 1, 0, 0, 0, 1, 1,
+	# 	1, 1, 0, 0, 0, 1, 1,
+	# 	0, 0, 1, 1, 1, 0, 0,
+	# 	0, 0, 1, 1, 1, 0, 0,
+	# ]

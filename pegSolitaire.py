@@ -49,6 +49,36 @@ def main(args):
 		print "Trace: " + str(gameATwoObject.trace)
 
 
+	# TODO: remove me in final submission
+	if not flag or flag == 4:
+		#AStar with third Heuristic
+		tic = time.clock()
+		gameATwoObject = pegSolitaireUtils.game(args.input)
+		search.aStarThree(gameATwoObject)
+		toc = time.clock()
+		timeATwo = toc - tic
+
+		print "Astar Two Search:"
+		print "Execution Time: " + str(timeATwo)
+		print "Nodes Expanded: " + str(gameATwoObject.nodesExpanded)
+		print "Trace: " + str(gameATwoObject.trace)
+
+
+	# TODO: remove me in final submission
+	if not flag or flag == 5:
+		#AStar with fourth Heuristic
+		tic = time.clock()
+		gameATwoObject = pegSolitaireUtils.game(args.input)
+		search.aStarFour(gameATwoObject)
+		toc = time.clock()
+		timeATwo = toc - tic
+
+		print "Astar Two Search:"
+		print "Execution Time: " + str(timeATwo)
+		print "Nodes Expanded: " + str(gameATwoObject.nodesExpanded)
+		print "Trace: " + str(gameATwoObject.trace)
+
+
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="HomeWork One")
