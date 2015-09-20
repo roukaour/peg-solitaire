@@ -188,6 +188,26 @@ def aStarThree(pegSol):
 	Perform an A* search using heuristic #3 on the game tree of the given Peg
 	Solitaire game, and return either the updated game or FAILURE.
 	"""
+	#################################################
+	# Must use functions:
+	# getNextState(self,oldPos, direction)
+	#
+	# we are using this function to count,
+	# number of nodes expanded, If you'll not
+	# use this grading will automatically turned to 0
+	#################################################
+	#
+	# using other utility functions from pegSolitaireUtility.py
+	# is not necessary but they can reduce your work if you
+	# use them.
+	# In this function you'll start from initial gameState
+	# and will keep searching and expanding tree until you
+	# reach goal using A-Star searching with first Heuristic
+	# you used.
+	# you must save the trace of the execution in pegSolitaireObject.trace
+	# SEE example in the PDF to see what to return
+	#
+	#################################################
 	if UniformCostSearch(pegSol, heuristicThree) is FAILURE:
 		recordFailure(pegSol)
 		return False
@@ -199,6 +219,26 @@ def aStarFour(pegSol):
 	Perform an A* search using heuristic #4 on the game tree of the given Peg
 	Solitaire game, and return either the updated game or FAILURE.
 	"""
+	#################################################
+	# Must use functions:
+	# getNextState(self,oldPos, direction)
+	#
+	# we are using this function to count,
+	# number of nodes expanded, If you'll not
+	# use this grading will automatically turned to 0
+	#################################################
+	#
+	# using other utility functions from pegSolitaireUtility.py
+	# is not necessary but they can reduce your work if you
+	# use them.
+	# In this function you'll start from initial gameState
+	# and will keep searching and expanding tree until you
+	# reach goal using A-Star searching with first Heuristic
+	# you used.
+	# you must save the trace of the execution in pegSolitaireObject.trace
+	# SEE example in the PDF to see what to return
+	#
+	#################################################
 	if UniformCostSearch(pegSol, heuristicFour) is FAILURE:
 		recordFailure(pegSol)
 		return False
@@ -314,7 +354,7 @@ def heuristicTwo(node):
 	# 	0, 0, 4, 0, 4, 0, 0,
 	# ]
 	# state = node.state
-	# return sum(difficulties[k] for k in xrange(49) if state[k] == 1)
+	# return node.pegCount * 2 + sum(difficulties[k] for k in xrange(49) if state[k] == 1)
 
 def heuristicThree(node):
 	"""
