@@ -290,10 +290,10 @@ def heuristicOne(node, sum=sum, xrange=xrange):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
 	This heuristic sums the Manhattan distances of each peg from the four holes
-	surrounding the center hole. I chose this heuristic because the end goal
-	is to have a single peg in the center, but in the middle stage of the game,
-	it is preferable to have pegs just outside the center so that they can be
-	used to remove other pegs.
+	surrounding the center hole.
+	We chose this heuristic because the end goal is to have a single peg in the
+	center, but in the middle stage of the game, it is preferable to have pegs
+	just outside the center so that they can be used to remove other pegs.
 	"""
 	# A lookup table of Manhattan distances is faster than calculating them
 	distances = [
@@ -316,14 +316,14 @@ def heuristicTwo(node):
 	the difficulty is set at 4 for the outer corners of the plus-shaped board,
 	3 for the inner corners, 1 for the center, and 0 for the other holes,
 	and adds it to twice the number of pegs remaining on the board.
-	I chose those values after some trial and error. Clearly the outer corners
+	We chose those values after some trial and error. Clearly the outer corners
 	are the most difficult, since they are the least maneuverable. The inner
 	corners are only slightly easier, since they have more neighbors but are
 	still not in the ideal rows or columns. (Note that pegs in the outer and
 	inner corners can only move within those positions, never to a non-corner
 	hole.) The center peg is the end goal of the game, but prior to that having
 	a peg sit there is not quite useful (since if you are left with two pegs
-	and one is in the center, the game is unsolvable). I expected the edges
+	and one is in the center, the game is unsolvable). We expected the edges
 	between the corners to also be difficult to move, but in practice setting
 	them to 1 caused longer runtimes.
 	"""
@@ -361,14 +361,15 @@ def heuristicThree(node):
 	Return a heuristic estimate of the cost of solving the given game node.
 	This heuristic counts the number of "dangling" pegs (those without any
 	neighbors) and adds it to the twice number of pegs remaining on the board.
+	We penalize dangling pegs because they cannot be removed without first
+	moving another peg to a neighboring hole, which may not be possible.
 	"""
 	# Store node.state locally to avoid repeated LOAD_ATTR instructions
 	state = node.state
 	# Count the number of dangling pegs
 	num_dangling = 0
 	for i in xrange(49):
-		if state[i] != 1:
-			continue
+		if state[i] != 1: continue
 		for direction in [7, 1, -7, -1]:
 			if node[i + direction] == 1:
 				break
@@ -381,6 +382,8 @@ def heuristicFour(node):
 	Return a heuristic estimate of the cost of solving the given game node.
 	This heuristic counts the number of pegs in the four outer areas of the
 	board and adds it to the twice number of pegs remaining on the board.
+	Pegs in the four outer areas are penalized because they are harder to
+	move and further from the central hole, where the final peg must be.
 	"""
 	# Store node.state locally to avoid repeated LOAD_ATTR instructions
 	state = node.state
