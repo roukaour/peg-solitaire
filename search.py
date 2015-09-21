@@ -253,10 +253,10 @@ def heuristicOne(node, xrange=xrange):
 def heuristicTwo(node, xrange=xrange):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
-	
+
 	This heuristic sums the estimated difficulty of removing each peg and adds
 	it to twice the number of pegs remaining on the board.
-	
+
 	We chose the difficulty values after some trial and error. The outer four
 	areas of the board are generally less maneuverable than the center, and
 	further from the eventual goal of the very central hole. This applies
