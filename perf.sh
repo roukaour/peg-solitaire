@@ -1,15 +1,13 @@
 #!/bin/bash
 
-echo Testing performance > perf.txt
+OUTFILE="perf.txt"
+
+echo Testing performance > $OUTFILE
 
 for board in boards/g*.txt; do
+	# gcentral.txt would take too long for IDDFS, so test it manually
 	if [[ $board == *gcentral.txt ]]; then continue; fi
-	echo $board >> perf.txt
-	python pegSolitaire.py --input $board --flag 0 >> perf.txt
-	#python pegSolitaire.py --input $board --flag 1 >> perf.txt
-	#python pegSolitaire.py --input $board --flag 2 >> perf.txt
-	#python pegSolitaire.py --input $board --flag 3 >> perf.txt
-	#python pegSolitaire.py --input $board --flag 4 >> perf.txt
-	#python pegSolitaire.py --input $board --flag 5 >> perf.txt
-	#python pegSolitaire.py --input $board --flag 6 >> perf.txt
+	echo $board >> $OUTFILE
+	echo $(fgrep -o X $board | wc -l) pegs >> $OUTFILE
+	python pegSolitaire.py --input $board --flag 0 >> $OUTFILE
 done
