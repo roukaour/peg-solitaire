@@ -249,8 +249,8 @@ def heuristicOne(node, xrange=xrange):
 	return node.pegCount * 2 + num_dangling
 
 
-# Store xrange locally to use LOAD_FAST instead of LOAD_GLOBAL instructions
-def heuristicTwo(node, xrange=xrange):
+# Store sum and xrange locally to use LOAD_FAST instead of LOAD_GLOBAL instructions
+def heuristicTwo(node, sum=sum, xrange=xrange):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
 
@@ -292,7 +292,7 @@ def heuristicBaseline(node):
 	return node.pegCount
 
 
-def heuristicManhattan(node, xrange=xrange):
+def heuristicManhattan(node, sum=sum, xrange=xrange):
 	"""
 	This heuristic sums the Manhattan distances of each peg from the four holes
 	surrounding the center hole.
