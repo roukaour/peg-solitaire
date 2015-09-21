@@ -21,6 +21,7 @@ def ItrDeepSearch(pegSol):
 	"""
 	Perform an iterative-deepening depth-first search on the game tree of the
 	given Peg Solitaire game, and return whether or not the game could be solved.
+
 	Based on textbook figure 3.18 (section 3.4, page 89), but with an additional
 	set of failed nodes (modulo symmetry) to avoid revisiting, which is reused
 	over succesive depth-limited searches and roughly halves the count of
@@ -71,6 +72,7 @@ def DepthLimitedSearch(pegSol, limit, failed):
 	game, and return either the updated game, CUTOFF (if the game cannot be
 	solved within the depth limit), or FAILURE (if the game cannot be solved
 	at all, given the available actions).
+
 	Based on textbook figure 3.17 (section 3.4, page 88), but with an additional
 	set of failed nodes (modulo symmetry) to avoid revisiting, which is reused
 	for future depth-limited searches.
@@ -86,6 +88,7 @@ def RecursiveDLS(node, pegSol, limit, explored, failed):
 	Solitaire game, and return either the updated game, CUTOFF (if the game
 	cannot be solved within the depth limit), or FAILURE (if the game cannot be
 	solved at all, given the available actions).
+
 	Based on textbook figure 3.17 (section 3.4, page 88), but with an additional
 	set of explored nodes (modulo symmetry) to avoid revisiting, and a set of
 	failed nodes to avoid revisiting even at a greater depth.
@@ -152,9 +155,6 @@ def aStarTwo(pegSol):
 	"""
 	Perform an A* search using heuristic #2 on the game tree of the given Peg
 	Solitaire game, and return either the updated game or FAILURE.
-	This is the only search function capable of solving the "central game"
-	(all holes filled with pegs except the center hole) in a reasonable
-	amount of time (expanding only 225 nodes).
 	"""
 	#################################################
 	# Must use functions:
@@ -281,6 +281,7 @@ def UniformCostSearch(pegSol, heuristic=None):
 	Perform a uniform-cost search (with an optional cost heuristic) of the game
 	tree of the given Peg Solitaire game, and return either the updated game
 	or FAILURE.
+
 	Based on textbook figure 3.14 (section 3.4, page 84), but with the set of
 	explored nodes taken modulo symmetry. (One board state can be solved iff
 	its seven symmetrical states can be solved, so when one has been expanded
@@ -347,6 +348,9 @@ def heuristicTwo(node):
 	the difficulty is set at 4 for the outer corners of the plus-shaped board,
 	3 for the inner corners, 1 for the center, and 0 for the other holes,
 	and adds it to twice the number of pegs remaining on the board.
+	A* search with this heuristic is capable of solving the "central game" (all
+	holes filled with pegs except the center hole) almost instantly (expanding
+	only 175 nodes).
 	We chose those values after some trial and error. Clearly the outer corners
 	are the most difficult, since they are the least maneuverable. The inner
 	corners are only slightly easier, since they have more neighbors but are
@@ -390,8 +394,10 @@ def heuristicTwo(node):
 def heuristicThree(node):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
+
 	This heuristic counts the number of "dangling" pegs (those without any
 	neighbors) and adds it to the twice number of pegs remaining on the board.
+
 	We penalize dangling pegs because they cannot be removed without first
 	moving another peg to a neighboring hole, which may not be possible.
 	"""
@@ -413,6 +419,11 @@ def heuristicFour(node):
 	Return a heuristic estimate of the cost of solving the given game node.
 	This heuristic counts the number of pegs in the four outer areas of the
 	board and adds it to the twice number of pegs remaining on the board.
+
+	A* search with this heuristic is capable of solving the "central game" (all
+	holes filled with pegs except the center hole) in a reasonable amount of
+	time (expanding 530,537 nodes, which takes around 20 seconds).
+
 	Pegs in the four outer areas are penalized because they are harder to
 	move and further from the central hole, where the final peg must be.
 	"""
@@ -442,6 +453,11 @@ def heuristicFour(node):
 def heuristicBaseline(node):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
+
+	Interestingly, A* search with this heuristic is capable of solving the
+	"central game" (all holes filled with pegs except the center hole) in a
+	short amount of time (expanding 26,847 nodes, which takes around one second).
+
 	This heuristic counts the number of pegs remaining on the board.
 	"""
 	return node.pegCount
