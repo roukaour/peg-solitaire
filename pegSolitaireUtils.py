@@ -1,7 +1,7 @@
 import readGame
 
 
-# I separated the given game class into two classes, game and gameNode.
+# We separated the given game class into two classes, game and gameNode.
 # The game class is mutable, and only one exists for each search. It stores
 # overall data like the parsed game state, count of nodes expanded, and
 # move trace. Its rootNode method returns a gameNode to search from.
@@ -44,9 +44,9 @@ class gameNode(object):
 	created, it increments the game's nodesExpanded counter.
 	"""
 
-	# I do not use this method. Instead of writing something like:
+	# We do not use this method. Instead of writing something like:
 	#     self.state[pos] if self.is_corner(pos) else -1
-	# I implemented __getitem__ with a bounds check so I can write:
+	# We implemented __getitem__ with a bounds check so we can write:
 	#     self[pos]
 	# and automatically avoid IndexErrors.
 	def is_corner(self, pos):
@@ -116,7 +116,7 @@ class gameNode(object):
 		empty, and the intermediate position must have another peg.
 		"""
 		# Since self.getNextPosition and self.__getitem__ are bounds-checked.
-		# the self.is_corner check is redundant, so I commented it out
+		# the self.is_corner check is redundant, so we commented it out
 		#########################################
 		# DONT change Things in here
 		# In this we have got the next peg position and
@@ -224,7 +224,7 @@ class gameNode(object):
 		f270 = r270[::-1]
 		return tuple(min(r0, f0, r90, f90, r180, f180, r270, f270))
 
-		# I also tried compressing states by treating holes and pegs as 0s and
+		# We also tried compressing states by treating holes and pegs as 0s and
 		# 1s in a 33-bit integer, but this approach was slower without usefully
 		# lowering memory usage. Even when an A* search expands 2 million nodes
 		# to solve a 32-peg game, the Python process using tuples takes up
