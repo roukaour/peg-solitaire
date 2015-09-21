@@ -59,7 +59,7 @@ class gameNode(object):
 	def getNextPosition(oldPos, direction):
 		"""
 		Return the new position after moving in the given direction
-		(7 is north/up, 1 is east/right, -7 is south/down, and -1 is west/left).
+		(-7 is north/up, 1 is east/right, 7 is south/down, and -1 is west/left).
 		Invalid movements outside the bounds of the board will return positions
 		such that is_corner(position) returns True.
 		"""
@@ -145,9 +145,9 @@ class gameNode(object):
 			# Valid moves start with a peg (1)
 			# Since oldPos is valid, don't use bounds-checked indexing for it
 			if self.state[oldPos] != 1: continue
-			# 7 is north/up and 1 is east/right
+			# 7 is south/down and 1 is east/right
 			directions = [7, 1]
-			# -7 is south/down (only necessary if not vertically symmetric)
+			# -7 is north/up (only necessary if not vertically symmetric)
 			if not self.vsym: directions.append(-7)
 			# -1 is west/left (only necessary if not horizontally symmetric)
 			if not self.hsym: directions.append(-1)
@@ -160,7 +160,7 @@ class gameNode(object):
 				if self[newPos] != 0: continue
 				yield (oldPos, direction)
 
-	def getNextState(self, oldPos, dir, pegSol):
+	def getNextState(self, oldPos, direction, pegSol):
 		"""
 		Return a child node of the current one, created by a given valid move.
 		The given game has its count of expanded nodes incremented.
@@ -168,7 +168,7 @@ class gameNode(object):
 		###############################################
 		# DONT Change Things in here
 		pegSol.nodesExpanded += 1
-		if not self.is_validMove(oldPos, dir):
+		if not self.is_validMove(oldPos, direction):
 			print "Error, You are not checking for valid move"
 			exit(0)
 		###############################################
@@ -177,8 +177,8 @@ class gameNode(object):
 		# eg: remove crossed over pegs by replacing it's
 		# position in gameState by 0
 		# and updating new peg position as 1
-		midPos = self.getNextPosition(oldPos, dir)
-		newPos = self.getNextPosition(midPos, dir)
+		midPos = self.getNextPosition(oldPos, direction)
+		newPos = self.getNextPosition(midPos, direction)
 		# x[:] makes a copy of x (necessary to avoid mutating self.state
 		# when updating childState)
 		childState = self.state[:]
