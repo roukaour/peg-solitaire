@@ -50,51 +50,6 @@ def main(args):
 		print "Trace: " + str(gameATwoObject.trace)
 
 
-	# TODO: remove this from the final submission
-	if not flag or flag == 4:
-		#AStar with third Heuristic
-		tic = time.clock()
-		gameAThreeObject = pegSolitaireUtils.game(args.input)
-		search.aStarThree(gameAThreeObject)
-		toc = time.clock()
-		timeAThree = toc - tic
-
-		print "Astar Three Search:"
-		print "Execution Time: " + str(timeAThree)
-		print "Nodes Expanded: " + str(gameAThreeObject.nodesExpanded)
-		print "Trace: " + str(gameAThreeObject.trace)
-
-
-	# TODO: remove this from the final submission
-	if not flag or flag == 5:
-		#AStar with fourth Heuristic
-		tic = time.clock()
-		gameAFourObject = pegSolitaireUtils.game(args.input)
-		search.aStarFour(gameAFourObject)
-		toc = time.clock()
-		timeAFour = toc - tic
-
-		print "Astar Four Search:"
-		print "Execution Time: " + str(timeAFour)
-		print "Nodes Expanded: " + str(gameAFourObject.nodesExpanded)
-		print "Trace: " + str(gameAFourObject.trace)
-
-
-	# TODO: remove this from the final submission
-	if not flag or flag == 6:
-		#AStar with baseline Heuristic
-		tic = time.clock()
-		gameABaselineObject = pegSolitaireUtils.game(args.input)
-		search.aStarBaseline(gameABaselineObject)
-		toc = time.clock()
-		timeABaseline = toc - tic
-
-		print "Astar Baseline Search:"
-		print "Execution Time: " + str(timeABaseline)
-		print "Nodes Expanded: " + str(gameABaselineObject.nodesExpanded)
-		print "Trace: " + str(gameABaselineObject.trace)
-
-
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="HomeWork One")
 	parser.add_argument("--input", type=str)

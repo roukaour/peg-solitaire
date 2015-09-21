@@ -183,99 +183,6 @@ def aStarTwo(pegSol):
 	return True
 
 
-def aStarThree(pegSol):
-	"""
-	Perform an A* search using heuristic #3 on the game tree of the given Peg
-	Solitaire game, and return either the updated game or FAILURE.
-	"""
-	#################################################
-	# Must use functions:
-	# getNextState(self,oldPos, direction)
-	#
-	# we are using this function to count,
-	# number of nodes expanded, If you'll not
-	# use this grading will automatically turned to 0
-	#################################################
-	#
-	# using other utility functions from pegSolitaireUtility.py
-	# is not necessary but they can reduce your work if you
-	# use them.
-	# In this function you'll start from initial gameState
-	# and will keep searching and expanding tree until you
-	# reach goal using A-Star searching with third Heuristic
-	# you used.
-	# you must save the trace of the execution in pegSolitaireObject.trace
-	# SEE example in the PDF to see what to return
-	#
-	#################################################
-	if UniformCostSearch(pegSol, heuristicThree) is FAILURE:
-		recordFailure(pegSol)
-		return False
-	return True
-
-
-def aStarFour(pegSol):
-	"""
-	Perform an A* search using heuristic #4 on the game tree of the given Peg
-	Solitaire game, and return either the updated game or FAILURE.
-	"""
-	#################################################
-	# Must use functions:
-	# getNextState(self,oldPos, direction)
-	#
-	# we are using this function to count,
-	# number of nodes expanded, If you'll not
-	# use this grading will automatically turned to 0
-	#################################################
-	#
-	# using other utility functions from pegSolitaireUtility.py
-	# is not necessary but they can reduce your work if you
-	# use them.
-	# In this function you'll start from initial gameState
-	# and will keep searching and expanding tree until you
-	# reach goal using A-Star searching with fourth Heuristic
-	# you used.
-	# you must save the trace of the execution in pegSolitaireObject.trace
-	# SEE example in the PDF to see what to return
-	#
-	#################################################
-	if UniformCostSearch(pegSol, heuristicFour) is FAILURE:
-		recordFailure(pegSol)
-		return False
-	return True
-
-
-def aStarBaseline(pegSol):
-	"""
-	Perform an A* search using a baseline heuristic on the game tree of the
-	given Peg Solitaire game, and return either the updated game or FAILURE.
-	"""
-	#################################################
-	# Must use functions:
-	# getNextState(self,oldPos, direction)
-	#
-	# we are using this function to count,
-	# number of nodes expanded, If you'll not
-	# use this grading will automatically turned to 0
-	#################################################
-	#
-	# using other utility functions from pegSolitaireUtility.py
-	# is not necessary but they can reduce your work if you
-	# use them.
-	# In this function you'll start from initial gameState
-	# and will keep searching and expanding tree until you
-	# reach goal using A-Star searching with baseline Heuristic
-	# you used.
-	# you must save the trace of the execution in pegSolitaireObject.trace
-	# SEE example in the PDF to see what to return
-	#
-	#################################################
-	if UniformCostSearch(pegSol, heuristicBaseline) is FAILURE:
-		recordFailure(pegSol)
-		return False
-	return True
-
-
 def UniformCostSearch(pegSol, heuristic=None):
 	"""
 	Perform a uniform-cost search (with an optional cost heuristic) of the game
@@ -317,86 +224,13 @@ def UniformCostSearch(pegSol, heuristic=None):
 				frontierLookup.add(childNode.key)
 
 
-# Store sum and xrange locally to use LOAD_FAST instead of LOAD_GLOBAL instructions
-def heuristicOne(node, sum=sum, xrange=xrange):
-	"""
-	Return a heuristic estimate of the cost of solving the given game node.
-	This heuristic sums the Manhattan distances of each peg from the four holes
-	surrounding the center hole.
-	We chose this heuristic because the end goal is to have a single peg in the
-	center, but in the middle stage of the game, it is preferable to have pegs
-	just outside the center so that they can be used to remove other pegs.
-	"""
-	# A lookup table of Manhattan distances is faster than calculating them
-	distances = [
-		5, 4, 3, 2, 3, 4, 5,
-		4, 3, 2, 1, 2, 3, 4,
-		3, 2, 1, 0, 1, 2, 3,
-		2, 1, 0, 1, 0, 1, 2,
-		3, 2, 1, 0, 1, 2, 3,
-		4, 3, 2, 1, 2, 3, 4,
-		5, 4, 3, 2, 3, 4, 5
-	]
-	# Store node.state locally to avoid repeated LOAD_ATTR instructions
-	state = node.state
-	return sum(distances[k] for k in xrange(49) if state[k] == 1)
-
-def heuristicTwo(node):
-	"""
-	Return a heuristic estimate of the cost of solving the given game node.
-	This heuristic sums the estimated difficulty of removing each peg, where
-	the difficulty is set at 4 for the outer corners of the plus-shaped board,
-	3 for the inner corners, 1 for the center, and 0 for the other holes,
-	and adds it to twice the number of pegs remaining on the board.
-	A* search with this heuristic is capable of solving the "central game" (all
-	holes filled with pegs except the center hole) almost instantly (expanding
-	only 175 nodes).
-	We chose those values after some trial and error. Clearly the outer corners
-	are the most difficult, since they are the least maneuverable. The inner
-	corners are only slightly easier, since they have more neighbors but are
-	still not in the ideal rows or columns. (Note that pegs in the outer and
-	inner corners can only move within those positions, never to a non-corner
-	hole.) The center peg is the end goal of the game, but prior to that having
-	a peg sit there is not quite useful (since if you are left with two pegs
-	and one is in the center, the game is unsolvable). We expected the edges
-	between the corners to also be difficult to move, but in practice setting
-	them to 1 caused longer runtimes.
-	"""
-	# Store node.state locally to avoid repeated LOAD_ATTR instructions
-	state = node.state
-	# Since pegs are 1s and holes are 0s, counting the pegs is equivalent to
-	# summing the states, and the difficulty per peg can be factored out
-	return node.pegCount * 2 + (
-		# The eight outer corners are worth 4 each
-		4 * (state[2] + state[4] + state[14] + state[20] +
-			state[28] + state[34] + state[44] + state[46]) +
-		# The four inner corners are worth 3 each
-		3 * (state[16] + state[18] + state[30] + state[32]) +
-		# The central hole is worth 1
-		state[24]
-	)
-
-	# A less-optimized version of heuristicTwo would use the same kind of lookup
-	# table as heuristicOne, but since most of the position difficulty values
-	# are 0, this would be pointlessly slow.
-	# difficulties = [
-	# 	0, 0, 4, 0, 4, 0, 0,
-	# 	0, 0, 0, 0, 0, 0, 0,
-	# 	4, 0, 3, 0, 3, 0, 4,
-	# 	0, 0, 0, 1, 0, 0, 0,
-	# 	4, 0, 3, 0, 3, 0, 4,
-	# 	0, 0, 0, 0, 0, 0, 0,
-	# 	0, 0, 4, 0, 4, 0, 0,
-	# ]
-	# state = node.state
-	# return node.pegCount * 2 + sum(difficulties[k] for k in xrange(49) if state[k] == 1)
-
-def heuristicThree(node):
+# Store xrange locally to use LOAD_FAST instead of LOAD_GLOBAL instructions
+def heuristicOne(node, xrange=xrange):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
 
 	This heuristic counts the number of "dangling" pegs (those without any
-	neighbors) and adds it to the twice number of pegs remaining on the board.
+	neighbors) and adds it to twice the number of pegs remaining on the board.
 
 	We penalize dangling pegs because they cannot be removed without first
 	moving another peg to a neighboring hole, which may not be possible.
@@ -414,50 +248,89 @@ def heuristicThree(node):
 			num_dangling += 1
 	return node.pegCount * 2 + num_dangling
 
-def heuristicFour(node):
+
+# Store xrange locally to use LOAD_FAST instead of LOAD_GLOBAL instructions
+def heuristicTwo(node, xrange=xrange):
 	"""
 	Return a heuristic estimate of the cost of solving the given game node.
-	This heuristic counts the number of pegs in the four outer areas of the
-	board and adds it to the twice number of pegs remaining on the board.
-
-	A* search with this heuristic is capable of solving the "central game" (all
-	holes filled with pegs except the center hole) in a reasonable amount of
-	time (expanding 530,537 nodes, which takes around 20 seconds).
-
-	Pegs in the four outer areas are penalized because they are harder to
-	move and further from the central hole, where the final peg must be.
+	
+	This heuristic sums the estimated difficulty of removing each peg and adds
+	it to twice the number of pegs remaining on the board.
+	
+	We chose the difficulty values after some trial and error. The outer four
+	areas of the board are generally less maneuverable than the center, and
+	further from the eventual goal of the very central hole. This applies
+	especially to the eight outer corners, which have fewer neighbors to
+	jump over. The four inner corners are only slightly easier, since they have
+	more neighbors but are still not in the ideal rows or columns. (Note that
+	pegs in the outer and inner corners can only move within those positions,
+	never to a non-corner hole.) The center peg is the end goal of the game,
+	but prior to that having a peg sit there is not quite useful (since if you
+	are left with two pegs and one is in the center, the game is unsolvable).
 	"""
+	difficulties = [
+		0, 0, 4, 1, 4, 0, 0,
+		0, 0, 1, 1, 1, 0, 0,
+		4, 1, 2, 0, 2, 1, 4,
+		1, 1, 0, 1, 0, 1, 1,
+		4, 1, 2, 0, 2, 1, 4,
+		0, 0, 1, 1, 1, 0, 0,
+		0, 0, 4, 1, 4, 0, 0,
+	]
 	# Store node.state locally to avoid repeated LOAD_ATTR instructions
 	state = node.state
-	# Instead of counting the pegs in the four outer areas, count the pegs in
-	# the central area and subtract that from the total number of pegs, since
-	# there are fewer central pegs to count
-	return (node.pegCount * 3 - state[16] - state[17] - state[18] -
-		state[23] - state[24] - state[25] - state[30] - state[31] - state[32])
+	return node.pegCount * 2 + sum(difficulties[k] for k in xrange(49) if state[k] == 1)
 
-	# A less-optimized version of heuristicFour would use the same kind of lookup
-	# table as heuristicOne, but since most of the position difficulty values
-	# are 0, this would be pointlessly slow.
-	# corners = [
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# 	1, 1, 0, 0, 0, 1, 1,
-	# 	1, 1, 0, 0, 0, 1, 1,
-	# 	1, 1, 0, 0, 0, 1, 1,
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# ]
-	# state = node.state
-	# return node.pegCount * 2 + sum(corners[k] for k in xrange(49) if state[k] == 1)
+
+################################################################################
+
 
 def heuristicBaseline(node):
 	"""
-	Return a heuristic estimate of the cost of solving the given game node.
-
-	Interestingly, A* search with this heuristic is capable of solving the
-	"central game" (all holes filled with pegs except the center hole) in a
-	short amount of time (expanding 26,847 nodes, which takes around one second).
-
 	This heuristic counts the number of pegs remaining on the board.
 	"""
 	return node.pegCount
+
+
+def heuristicManhattan(node, xrange=xrange):
+	"""
+	This heuristic sums the Manhattan distances of each peg from the four holes
+	surrounding the center hole.
+	"""
+	distances = [
+		5, 4, 3, 2, 3, 4, 5,
+		4, 3, 2, 1, 2, 3, 4,
+		3, 2, 1, 0, 1, 2, 3,
+		2, 1, 0, 1, 0, 1, 2,
+		3, 2, 1, 0, 1, 2, 3,
+		4, 3, 2, 1, 2, 3, 4,
+		5, 4, 3, 2, 3, 4, 5
+	]
+	state = node.state
+	return sum(distances[k] for k in xrange(49) if state[k] == 1)
+
+
+def heuristicDifficulty1(node):
+	"""
+	This heuristic sums the estimated difficulty of removing each peg, where
+	the difficulty is set at 4 for the outer corners of the plus-shaped board,
+	3 for the inner corners, 1 for the center, and 0 for the other holes,
+	and adds it to twice the number of pegs remaining on the board.
+	"""
+	state = node.state
+	return node.pegCount * 2 + (
+		4 * (state[2] + state[4] + state[14] + state[20] +
+			state[28] + state[34] + state[44] + state[46]) +
+		3 * (state[16] + state[18] + state[30] + state[32]) +
+		state[24]
+	)
+
+
+def heuristicDifficulty2(node):
+	"""
+	This heuristic counts the number of pegs in the four outer areas of the
+	board and adds it to the twice number of pegs remaining on the board.
+	"""
+	state = node.state
+	return (node.pegCount * 3 - state[16] - state[17] - state[18] -
+		state[23] - state[24] - state[25] - state[30] - state[31] - state[32])
