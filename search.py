@@ -282,7 +282,9 @@ def heuristicTwo(node, sum=sum, xrange=xrange):
 	return node.pegCount * 2 + sum(difficulties[k] for k in xrange(49) if state[k] == 1)
 
 
-################################################################################
+#####################################
+# Abandoned heuristics
+#####################################
 
 
 def heuristicBaseline(node):
