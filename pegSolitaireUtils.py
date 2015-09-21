@@ -145,8 +145,13 @@ class gameNode(object):
 			# Valid moves start with a peg (1)
 			# Since oldPos is valid, don't use bounds-checked indexing for it
 			if self.state[oldPos] != 1: continue
-			# 7 is north/up, 1 is east/right, -7 is south/down, and -1 is west/left
-			for direction in [7, 1, -7, -1]:
+			# 7 is north/up and 1 is east/right
+			directions = [7, 1]
+			# -7 is south/down (only necessary if not vertically symmetric)
+			if not self.vsym: directions.append(-7)
+			# -1 is west/left (only necessary if not horizontally symmetric)
+			if not self.hsym: directions.append(-1)
+			for direction in directions:
 				midPos = self.getNextPosition(oldPos, direction)
 				# Valid moves jump over a peg (1)
 				if self[midPos] != 1: continue
@@ -207,10 +212,14 @@ class gameNode(object):
 		# x[::-1] reverses x, or reflects a 2D list across the horizontal axis
 		# zip(*x[::-1]) rotates a 2D list 90 degrees clockwise
 		f0 = r0[::-1]
+		# Cache vertical symmetry to prune validMoves
+		self.vsym = r0 == f0
 		r90 = zip(*f0)
 		f90 = r90[::-1]
 		r180 = zip(*f90)
 		f180 = r180[::-1]
+		# Cache horizontal symmetry to prune validMoves
+		self.hsym = r0 == f180
 		r270 = zip(*f180)
 		f270 = r270[::-1]
 		return tuple(min(r0, f0, r90, f90, r180, f180, r270, f270))
