@@ -18,7 +18,8 @@
 #####################################
 
 studentsDetails = {
-"roukaour": ("Oukaour_Remy", "107122849")
+"roukaour": ("Oukaour_Remy", "107122849"),
+"jyang": ("Yang_Jian", "SBU_ID"),
 }
 
 #####################################
@@ -27,4 +28,5 @@ studentsDetails = {
 # direction is like (row#, col#)
 # top left is (0,0) and bottom right is (6,6)
 
+# We don't actually use this
 DIRECTION = {'N': (-1, 0), 'S': (1, 0), 'E': (0, 1), 'W': (0, -1) }
