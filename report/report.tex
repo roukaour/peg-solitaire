@@ -182,8 +182,8 @@ def getNextState(self, oldPos, dir, pegSol):
 	childState[midPos] = 0 # The jumped-over peg is removed
 	childState[newPos] = 1 # The peg moves to this hole
 	# Convert positions back into pairs for printing
-	childTrace = self.trace + [(oldPos // 7, oldPos \% 7),
-		(newPos // 7, newPos \% 7)]
+	childTrace = self.trace + [(oldPos // 7, oldPos % 7),
+		(newPos // 7, newPos % 7)]
 	return gameNode(childState, childTrace,
 		self.pegCount - 1, self.heuristic)
 \end{lstlisting}
@@ -412,9 +412,9 @@ moves (north, south, east, and west). For several large test cases, if we test
 those four directions in a different order, performance can significantly vary.
 There are $4!$, or 24 possible orders, so we tested all 24 of them against all
 six search algorithms. The 24 possibilities break down into two categories:
-``opposite-order first'' (such as ``north, south, east, west'') and ``orthogonal-
+``opposite order first'' (such as ``north, south, east, west'') and``orthogonal
 order first'' (such as ``north, east, south, west''). By plotting the results in
-figure \ref{fig_boxplot}, it is clear that the ``orthogonal-order first'' category
+figure \ref{fig_boxplot}, it is clear that the ``orthogonal order first'' category
 had slightly better performance.
 
 \begin{figure}[h!]
