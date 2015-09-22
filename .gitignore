@@ -1,3 +1,6 @@
 __pycache__/
 .idea/
 *.py[cod]
+report/*.aux
+report/*.log
+report/*.synctex.gz
