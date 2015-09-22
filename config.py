@@ -19,7 +19,7 @@
 
 studentsDetails = {
 "roukaour": ("Oukaour_Remy", "107122849"),
-"jyang": ("Yang_Jian", "SBU_ID"),
+"yang16": ("Yang_Jian", "110168771"),
 }
 
 #####################################
