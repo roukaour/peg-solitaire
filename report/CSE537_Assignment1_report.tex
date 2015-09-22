@@ -1,5 +1,5 @@
-\documentclass[11pt,letter]{article}
-% \include{macro-file}
+\documentclass[11pt, letter]{article}
+%\include{macro-file}
 
 \def\mainroot{ell_1}
 
@@ -11,7 +11,8 @@
 \usepackage{caption}
 \usepackage[compact]{titlesec}
 %\usepackage{bm}
-\usepackage{txfonts} %\usepackage{times}
+\usepackage{txfonts}
+%\usepackage{times}
 \usepackage{color}
 \usepackage{tikz}
 \usetikzlibrary{calc}
@@ -55,294 +56,268 @@
 %\renewcommand\floatpagefraction{.9}
 %\renewcommand\topfraction{.9}
 %\renewcommand\bottomfraction{.9}
-%\renewcommand\textfraction{.1}   
+%\renewcommand\textfraction{.1}
 %\setlength{\textfloatsep}{10pt plus 1.0pt minus 2.0pt}
 
 % Jian \DeclareMathOperator*{\median}{median}
 \newcommand{\mb}{\ensuremath\mathbf}
 \newcommand{\F}{\ensuremath\mathbb{F}}
 
-\title{CSE537 Assignment-1 Report: Peg Solitaire}
+\title{CSE 537 Assignment 1 Report: Peg Solitaire}
 \author{
 %\alignauthor
 Remy Oukaour \\
-       {\small SBU ID: 107122849}\\
-       {\small \texttt{remy.oukaour@gmail.com }}
+	{\small SBU ID: 107122849}\\
+	{\small \texttt{remy.oukaour@gmail.com}}
 %\alignauthor
 \and
 Jian Yang \\
-       {\small SBU ID: 110168771}\\
-       {\small \texttt{jian.yang.1@stonybrook.edu }}
+	{\small SBU ID: 110168771}\\
+	{\small \texttt{jian.yang.1@stonybrook.edu}}
 %\alignauthor
 }
-\date{}
-
+\date{Thursday, September 24, 2015}
 
 \raggedbottom
 
 \begin{document}
+
 \maketitle
 
 \begin{abstract}
-This is a report for the assignment 1 in course CSE537 Artificial Intelligence. Assignment 1 required to implement the ID-DFS( iterative deepening depth-first search) and two different heuristic A* methods. \\
-In this report, we would discuss the implementation details, and we also compared the six solutions, including the ID-DFS method, six A* methods and one baseline.
+This report describes our submission for assignment 1 in the CSE 537 course on
+artificial intelligence. Assignment 1 requires us to implement three algorithms
+for solving a game of Peg Solitaire: iterative-deepening depth-first search
+(ID-DFS), and A* search with two different heuristics. In this report, we
+discuss the implementation details and compare the performance of six solutions
+(ID-DFS and five A* heuritsics, of which we settled on two).
 \end{abstract}
 
-% \thispagestyle{empty}
-% \newpage
-% \addtocounter{page}{-1}
-
 \section{Introduction}
+
 TODO: write the introduction
 
-\section {Implementation}\label{sec:var}
-\subsection {Data Structure Optimazation}
-\subsubsection {pegSolitaire}
-The original data structure to present pegSolitaire is a single state node to present a node. For the implementation for A* and the purpose to make the routine more clear, we separated the game wrapper and the game state to two different classes, the first one is the class \(game\) and the second one is the class \(gameNode\).
-\subsubsection {gameState}
-The original data structure to save game state in given framework was a 2-dimensional integer array. The indexing to every single entry required two indexes, one is the column and another is the row. To simplify this, we flattened the array to 1-dimensional. According to that, the size of the array is 49, and we mapped the original entries to 1-dimenstional array by \(new\_pos = old\_pos[0] \times 7 + old\_pos[1]\) where \(new\_pos\) is the index in 1-dimensional array and \(old\_pos\) is the indexes tuple in 2-dimensional array. 
+\section{Implementation}
 
-\subsection {Required Implementation}
-There are four required implementation in file pegSolitaireUtils.py: \\
+We were given four Python code files implementing the assignment framework:
+\(readGame.py\), \(pegSolitaireUtils.py\), \(search.py\), and \(pegSolitaire.py\).
+We did not need to edit \(readGame.py\) or \(pegSolitaire.py\), but only had to
+implement utility classes and methods in \(pegSolitaireUtils.py\) and the search
+algorithms in \(search.py\).
+
+\subsection{Data structures}
+
+The original data structure given in \(pegSolitaireUtils.py\) was a single
+class \(game\) containing the game state as a 2-dimensional 7\times7 array of
+integers, a trace of the moves taken to reach that state, and an overall count
+of the nodes expanded by the search algorithm. To make the implementation more
+clear, we split this into two classes: \(game\), a singleton class storing
+overall state for a search (the original game state, final move trace, and
+expanded node count), and \(gameNode\), a class which a search algorithm can
+repeatedly create as it explores the game tree.
+
+The \(gameNode\) class contains some optimizations. We flattened the game state
+into a 1-dimensional array of 49 integers to speed up indexing and simplify
+copying. Thus, an index \(gameState[i][j]\) would become \(gameState[i*7+j]\).
+We also cache two pieces of data when a \(gameNode\) is created: a count of
+pegs remaining on the board, and a \(key\) state chosen from the eight symmetric
+states under rotation and reflection. This data is used by our search algorithms
+to prune search trees.
+
+\subsection{Utility methods}
+
+We were required to implement four utility methods in \(pegSolitaireUtils.py\):
+
 \begin{enumerate}
-\item is\_corner(self, pos):
+
+\item \(is\_corner(self, pos)\):
+
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
+\begin{lstlisting}[frame=single]
 def is_corner(self, pos):
-    """
-        Return whether a position is a corner/wall,
-        i.e. not a hole or peg.
-    """
-    return 0 <= pos < 49 and self.state[pos] != -1
+	"""
+	Return whether a position is a corner/wall,
+	i.e. not a hole or peg.
+	"""
+	return 0 <= pos < 49 and self.state[pos] != -1
 \end{lstlisting}
 
-In implementation, we used another function \(\_\_getitem\_\_(self, pos)\) instead: \\
+In implementation, we actually used another function
+\(\_\_getitem\_\_(self, pos)\) instead: \\
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
 
-\begin{lstlisting}[frame=single]  % Start your code-block
-
+\begin{lstlisting}[frame=single]
 def __getitem__(self, pos):
-    """
-    node[pos] is bounds-checked shorthand for node.state[pos].
-    """
-    return self.state[pos] if 0 <= pos < 49 else -1
+	"""
+	node[pos] is bounds-checked shorthand for node.state[pos].
+	"""
+	return self.state[pos] if 0 <= pos < 49 else -1
 \end{lstlisting}
 
-\item \(is\_validMove(self, oldPos, direction):\)
+\item \(is\_validMove(self, oldPos, direction)\):
+
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
+\begin{lstlisting}[frame=single]
 def is_validMove(self, oldPos, direction):
-    """
-    Return whether it is valid to move a peg from a given position
-    in a given direction. The position must have a peg, the 
-    destination must be empty, and the intermediate position
-    must have another peg.
-    """
-    # Since self.getNextPosition and self.__getitem__ are
-    # bounds-checked.
-    # the self.is_corner check is redundant, so I commented it out
-    #########################################
-    # DONT change Things in here
-    # In this we have got the next peg position and
-    # below lines check for if the new move is a corner
-    #newPos = self.getNextPosition(oldPos, direction)
-    #if self.is_corner(newPos):
-    #	return False
-    ########################################
-    # YOU HAVE TO MAKE CHANGES BELOW THIS
-    # check for cases like:
-    # if new move is already occupied
-    # or new move is outside peg Board
-    # Remove next line according to your convenience
-    midPos = self.getNextPosition(oldPos, direction)
-    newPos = self.getNextPosition(midPos, direction)
-    # 1 is a peg, and 0 is a hole
-    # Since oldPos is valid, don't use bounds-checked indexing
-    # for it
-    return (self.state[oldPos] == self[midPos] == 1 and\
-               self[newPos] == 0)
+	"""
+	Return whether it is valid to move a peg from a given
+	position in a given direction. The position must have a
+	peg, the destination must be empty, and the intermediate
+	position must have another peg.
+	"""
+	midPos = self.getNextPosition(oldPos, direction)
+	newPos = self.getNextPosition(midPos, direction)
+	# 1 is a peg, and 0 is a hole
+	# Since oldPos is valid, don't use bounds-checked
+	# indexing for it
+	return (self.state[oldPos] == self[midPos] == 1
+		and self[newPos] == 0)
 \end{lstlisting}
-\item getNextPosition(self, oldPos, direction):
+
+\item \(getNextPosition(self, oldPos, direction)\):
+
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
+\begin{lstlisting}[frame=single]
 @staticmethod
 def getNextPosition(oldPos, direction):
-    """
-    Return the new position after moving in the given direction
-    (7 is north/up, 1 is east/right, -7 is south/down, and -1 is
-    west/left).
-    Invalid movements outside the bounds of the board will return
-    positions such that is_corner(position) returns True.
-    """
-    newPos = oldPos + direction
-    # If direction is 7 or -7 (changing rows), newPos is already
-    # correct
-    return (newPos if direction == 7 or direction == -7 or
-    # If direction is 1 or -1 (changing columns), the row should
-    # not change
-        newPos // 7 == oldPos // 7 else -1)
+	"""
+	Return the new position after moving in the given
+	direction (-7 is north/up, 1 is east/right, 7 is south/down,
+	and -1 is west/left). Invalid movements outside the bounds
+	of the board will return positions such that
+	is_corner(position) returns True.
+	"""
+	newPos = oldPos + direction
+	# If direction is 7 or -7 (changing rows),
+	# newPos is already correct
+	return (newPos if direction == 7 or direction == -7 or
+	# If direction is 1 or -1 (changing columns),
+	# the row should not change
+		newPos // 7 == oldPos // 7 else -1)
 \end{lstlisting}
-\item getNextState(self, oldPos, direction):
+
+\item \(getNextState(self, oldPos, direction)\):
+
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
+\begin{lstlisting}[frame=single]
 def getNextState(self, oldPos, dir, pegSol):
-    """
-    Return a child node of the current one, created by a given
-    valid move.
-    The given game has its count of expanded nodes incremented.
-    """
-    ###############################################
-    # DONT Change Things in here
-    pegSol.nodesExpanded += 1
-    if not self.is_validMove(oldPos, dir):
-        print "Error, You are not checking for valid move"
-        exit(0)
-    ###############################################
-    # YOU HAVE TO MAKE CHANGES BELOW THIS
-    # Update the gameState after moving peg
-    # eg: remove crossed over pegs by replacing it's
-    # position in gameState by 0
-    # and updating new peg position as 1
-    midPos = self.getNextPosition(oldPos, dir)
-    newPos = self.getNextPosition(midPos, dir)
-    # x[:] makes a copy of x (necessary to avoid mutating
-    # self.state when updating childState)
-    childState = self.state[:]
-    childState[oldPos] = 0 # The peg moves from here, leaving a hole
-    childState[midPos] = 0 # The jumped-over peg is removed
-    childState[newPos] = 1 # The peg moves to this hole
-    # Convert positions back into pairs for printing
-    childTrace = self.trace + [(oldPos // 7, oldPos % 7), \
-                        (newPos // 7, newPos % 7)]
-    return gameNode(childState, childTrace, self.pegCount - 1,\
-              self.heuristic)
+	"""
+	Return a child node of the current one, created by a
+	given valid move. The given game has its count of
+	expanded nodes incremented.
+	"""
+	pegSol.nodesExpanded += 1
+	if not self.is_validMove(oldPos, direction):
+		print "Error, You are not checking for valid move"
+		exit(0)
+	midPos = self.getNextPosition(oldPos, direction)
+	newPos = self.getNextPosition(midPos, direction)
+	# x[:] makes a copy of x (necessary to avoid mutating
+	# self.state when updating childState)
+	childState = self.state[:]
+	childState[oldPos] = 0 # The peg moves from here
+	childState[midPos] = 0 # The jumped-over peg is removed
+	childState[newPos] = 1 # The peg moves to this hole
+	# Convert positions back into pairs for printing
+	childTrace = self.trace + [(oldPos // 7, oldPos \% 7),
+		(newPos // 7, newPos \% 7)]
+	return gameNode(childState, childTrace,
+		self.pegCount - 1, self.heuristic)
 \end{lstlisting}
+
 \end{enumerate}
 
-\subsection {Implementation of methods}
-\subsubsection {ID-DFS}
+\subsection{Search functions}
 
-\subsubsection {A* with heuristic method 1}
+We were required to implement our search functions and heuristics in
+\(search.py\).
+
+\subsubsection{ID-DFS}
+
+We implemented ID-DFS straightforwardly, based on figure 3.17 (section 3.4,
+page 88) and figure 3.18 (section 3.4, page 89) in the textbook. However, we
+also maintain a set of explored nodes (modulo symmetry) to avoid revisiting,
+which helps prune the search tree.
+
+\subsubsection{A*}
+
+We implemented A* based on figure 3.14 (section 3.4, page 84) in the textbook.
+However, we take the set of \(explored\) nodes modulo symmetry to further prune
+the search tree. (One game state can be solved if and only if its seven
+symmetrical states can be solved, so when one has been expanded the other
+seven can be pruned.)
+
+\subsubsection{First A* heuristic}
+
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
+\begin{lstlisting}[frame=single]
+def heuristicOne(node):
+	"""
+	This heuristic counts the number of "dangling" pegs (those
+	without any neighbors) and adds it to twice the number of
+	pegs remaining on the board.
 
-\begin{lstlisting}[frame=single]  % Start your code-block
-
-	distances = [
-		5, 4, 3, 2, 3, 4, 5,
-		4, 3, 2, 1, 2, 3, 4,
-		3, 2, 1, 0, 1, 2, 3,
-		2, 1, 0, 1, 0, 1, 2,
-		3, 2, 1, 0, 1, 2, 3,
-		4, 3, 2, 1, 2, 3, 4,
-		5, 4, 3, 2, 3, 4, 5
-	]
-\end{lstlisting}
-\subsubsection {A* with heuristic method 2}
-\lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
-}
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
-	# difficulties = [
-	# 	0, 0, 4, 0, 4, 0, 0,
-	# 	0, 0, 0, 0, 0, 0, 0,
-	# 	4, 0, 3, 0, 3, 0, 4,
-	# 	0, 0, 0, 1, 0, 0, 0,
-	# 	4, 0, 3, 0, 3, 0, 4,
-	# 	0, 0, 0, 0, 0, 0, 0,
-	# 	0, 0, 4, 0, 4, 0, 0,
-	# ]
-\end{lstlisting}
-\subsubsection {A* with heuristic method 3}
-\lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
-}
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
-def heuristicThree(node):
-	state = node.state
-	# Count the number of dangling pegs
+	We penalize dangling pegs because they cannot be removed
+	without first moving another peg to a neighboring hole,
+	which may not be possible.
+	"""
 	num_dangling = 0
 	for i in xrange(49):
-		if state[i] != 1: continue
+		if node.state[i] != 1: continue
 		for direction in [7, 1, -7, -1]:
 			if node[i + direction] == 1:
 				break
@@ -350,47 +325,41 @@ def heuristicThree(node):
 			num_dangling += 1
 	return node.pegCount * 2 + num_dangling
 \end{lstlisting}
-\subsubsection {A* with heuristic method 4}
+
+\subsubsection{Second A* heuristic}
+
 \lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
 }
 
-\begin{lstlisting}[frame=single]  % Start your code-block
+\begin{lstlisting}[frame=single]
+def heuristicTwo(node, sum=sum, xrange=xrange):
+	"""
+	This heuristic sums the estimated difficulty of removing
+	each peg and adds it to twice the number of pegs remaining
+	on the board.
 
-	# corners = [
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# 	1, 1, 0, 0, 0, 1, 1,
-	# 	1, 1, 0, 0, 0, 1, 1,
-	# 	1, 1, 0, 0, 0, 1, 1,
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# 	0, 0, 1, 1, 1, 0, 0,
-	# ]
-\end{lstlisting}
-\subsubsection {Baseline for A*}
-We used the number of left pegs to be the cost function for a baseline methods.
-
-\subsubsection {A* with heuristic method mixed from 2 and 4}
-\lstset{language=Python,
-                basicstyle=\ttfamily,
-                showstringspaces=false,
-                keywordstyle=\color{keywordcolor}\ttfamily,
-                identifierstyle=\color{idcolor}\ttfamily,
-                stringstyle=\color{red}\ttfamily,
-                commentstyle=\color{commentcolor}\ttfamily,
-                numberstyle=\color{keywordcolor}\ttfamily,
-                morecomment=[l][\color{magenta}]{\#}
-}
-
-\begin{lstlisting}[frame=single]  % Start your code-block
-
+	We chose the difficulty values after some trial and error.
+	The outer four areas of the board are generally less
+	maneuverable than the center, and further from the eventual
+	goal of the very central hole. This applies especially to
+	the eight outer corners, which have fewer neighbors to jump
+	over. The four inner corners are only slightly easier, since
+	they have more neighbors but are still not in the ideal rows
+	or columns. (Note that pegs in the outer and inner corners
+	can only move within those positions, never to a non-corner
+	hole.) The center peg is the end goal of the game, but prior
+	to that having a peg sit there is not quite useful (since if
+	you are left with two pegs and one is in the center, the
+	game is unsolvable).
+	"""
 	difficulties = [
 		0, 0, 4, 1, 4, 0, 0,
 		0, 0, 1, 1, 1, 0, 0,
@@ -400,38 +369,122 @@ We used the number of left pegs to be the cost function for a baseline methods.
 		0, 0, 1, 1, 1, 0, 0,
 		0, 0, 4, 1, 4, 0, 0,
 	]
+	return node.pegCount * 2 + sum(difficulties[k]
+		for k in xrange(49) if node.state[k] == 1)
 \end{lstlisting}
 
-\subsubsection {Other abandoned methods}
-We also tried Manhattan distances but this cost function doesn't work well as the above methods we used. So we didn't include it in the following performance disucssion.
+\subsubsection{Other A* heuristics}
 
-\subsection {Other Optimization for Performance}
+We tested various other heuristics before settling on our chosen two. One of
+them was a baseline heuristic that simply returned the number of remaining
+pegs. The other three were all variations on \(heuristicTwo\) with a different
+\(difficulties\) array.
 
-\section {Benchmark}
-\subsection {Manual Tests}
-We have written 10 manual cases from impossible cases to extreme cases.
-\subsection {Random Tests}
-For test purpose, we implemented one random generator to generate a game board status. The idea is, based on the final state, we would randomly generate a valid backward move based on current board and apply the move and repeat this for random steps. \\
-The pseudocode is:
-\begin{algorithm}                      % enter the algorithm environment
-\caption{Random Test generator}          % give the algorithm a caption
-\label{random_alg}                           % and a label for \ref{} commands later in the document
-\begin{algorithmic} [1]                   % enter the algorithmic environment
-    \State {$num\_step \gets$  a random number between 1 and 33 }
-    \State {$board\_state \gets$ initialized board state with only one peg in the center }
-    \For {$j \gets 1$ to $num\_step$}
-        \State {$valid\_startpos, valid\_direction \gets$ find a valid random move}
-        \State {$board\_state[valid\_startpos] \gets$ 0}
-        \State {$board\_state[valid\_startpos + valid\_direction] \gets$ 1}
-        \State {$board\_state[valid\_startpos + valid\_direction + valid\_direction] \gets$ 1}
-    \EndFor
-    \State \Return {$board\_state$} 
-    
+\begin{enumerate}
+
+\item Manhattan distance from center:
+
+\lstset{language=Python,
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
+}
+\begin{lstlisting}[frame=single]
+distances = [
+	5, 4, 3, 2, 3, 4, 5,
+	4, 3, 2, 1, 2, 3, 4,
+	3, 2, 1, 0, 1, 2, 3,
+	2, 1, 0, 1, 0, 1, 2,
+	3, 2, 1, 0, 1, 2, 3,
+	4, 3, 2, 1, 2, 3, 4,
+	5, 4, 3, 2, 3, 4, 5
+]
+\end{lstlisting}
+
+\item Alternative difficulties #1:
+
+\lstset{language=Python,
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
+}
+\begin{lstlisting}[frame=single]
+distances = [
+	0, 0, 4, 0, 4, 0, 0,
+	0, 0, 0, 0, 0, 0, 0,
+	4, 0, 3, 0, 3, 0, 4,
+	0, 0, 0, 1, 0, 0, 0,
+	4, 0, 3, 0, 3, 0, 4,
+	0, 0, 0, 0, 0, 0, 0,
+	0, 0, 4, 0, 4, 0, 0
+]
+\end{lstlisting}
+
+\item Alternative difficulties #2:
+
+\lstset{language=Python,
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	keywordstyle=\color{keywordcolor}\ttfamily,
+	identifierstyle=\color{idcolor}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	commentstyle=\color{commentcolor}\ttfamily,
+	numberstyle=\color{keywordcolor}\ttfamily,
+	morecomment=[l][\color{magenta}]{\#}
+}
+\begin{lstlisting}[frame=single]
+distances = [
+	0, 0, 1, 1, 1, 0, 0,
+	0, 0, 1, 1, 1, 0, 0,
+	1, 1, 0, 0, 0, 1, 1,
+	1, 1, 0, 0, 0, 1, 1,
+	1, 1, 0, 0, 0, 1, 1,
+	0, 0, 1, 1, 1, 0, 0,
+	0, 0, 1, 1, 1, 0, 0
+]
+\end{lstlisting}
+
+\end{enumerate}
+
+\section{Benchmarks}
+
+\subsection{Test cases}
+
+We wrote ten test cases manually based on actual game boards that people play,
+such as a 9-peg plus shape, a 16-peg pyramid, a 24-peg diamond, or the 32-peg
+"central game" with only one hole in the center.
+
+We also implemented a generator for random valid test cases. It works by
+starting with the goal state (only one peg in the center) and randomly picking
+valid backward moves that could have reached that state. In pseudocode:
+
+\begin{algorithm}
+\caption{Random test case generator}
+\label{random_alg}
+\begin{algorithmic}[1]
+	\State{$num\_step \gets$  a random number between 1 and 33 }
+	\State{$board\_state \gets$ initialized board state with only one peg in the center }
+	\For{$j \gets 1$ to $num\_step$}
+		\State{$valid\_startpos, valid\_direction \gets$ find a valid random move}
+		\State{$board\_state[valid\_startpos] \gets$ 0}
+		\State{$board\_state[valid\_startpos + valid\_direction] \gets$ 1}
+		\State{$board\_state[valid\_startpos + valid\_direction + valid\_direction] \gets$ 1}
+	\EndFor
+	\State \Return{$board\_state$}
 \end{algorithmic}
 \end{algorithm}
 
-\section {Result Study}
-\subsection {Basic Cases}
+\subsection{Basic Cases}
 And the result for our different methods are as shown in table \ref{tab_resbasic}:
 \begin{table}[h!]
   \centering
@@ -444,10 +497,10 @@ given case & 50 & 16 & 14 & 18 & 22 & 19 & 13 & 13 \\ \hline
   \label{tab_resbasic}
 \end{table}
 
-\subsection {Impossible Case}
+\subsection{Impossible Case}
 We added one case with two noncontiguous pegs. There shouldn't be solutions for such a case and the program should quit without hanging. In our test, only ID-DFS expanded two nodes and other methods expanded only one, and then the program quilted properly without any issue.
 
-\subsection {Extreme Cases}
+\subsection{Extreme Cases}
 The most extreme case for this problem is the "all full but the center" condition that showed as the figure \ref{fig_full}. \\
 \begin{figure} [h!]
 \centering
@@ -466,7 +519,7 @@ Extreme & MemErr & 1,967,299 & 175 & 5,714,286 & 530,537 & 1,801,655 & 103,402 &
   \caption{This table shows some data}
   \label{tab_resfull}
 \end{table}
-\subsection {Mean and Median}
+\subsection{Mean and Median}
 For the whole benchmark, we calculated the mean and the median numbers of the expanded nodes in table \ref{tbl_mean}. In comparison we chose $A*-1$ and $A*-mix24"$ in our final submitted program. \\
 \begin{table}[h!]
   \centering
@@ -480,7 +533,7 @@ Median & 6,417 & 74 & 129 & 74 & 114 & 95 & 98 & 92 \\ \hline
   \label{tbl_mean}
 \end{table}
 
-\subsection {Performance Study with other tricks}
+\subsection{Performance Study with other tricks}
 In our testing, we found one interesting phenomenon. For several large cases, if the movement orders are different, for example, expand one node by the order "East, West, North, South" might be quite different from the order "East, North, West, South". \\
 There are 24 possible orders, where $24 = 4!$, and we tested all the 24 possible orders with the above 6 methods, which included five A* methods and one baseline method. And we counted two sets of summations, one is the set of summations for "opposite-order first" for the movements and another set of summations is for the "non-opposite-order first". Here "opposite-order first" contained 12 conditions starting with opposite directions at the first two and the last two pairs such as "East, West, North, South". For "non-opposite-order first", such as "East, North, West, South". In a box plot in figure \ref{fig_boxplot}, it's obvious that the "non-opposite-order first" had better.
 \begin{figure} [h!]
@@ -490,6 +543,8 @@ There are 24 possible orders, where $24 = 4!$, and we tested all the 24 possible
 \label{fig_boxplot}
 \end{figure}
 
-\section {Conclusion}
+\section{Conclusion}
+
+TODO: conclusion
 
 \end{document}
