@@ -123,16 +123,15 @@ def __getitem__(self, pos):
 \begin{lstlisting}[frame=single]
 def is_validMove(self, oldPos, direction):
 	"""
-	Return whether it is valid to move a peg from a given
-	position in a given direction. The position must have a
-	peg, the destination must be empty, and the intermediate
-	position must have another peg.
+	Return whether it is valid to move a peg from a given position
+	in a given direction. The position must have a peg, the
+	destination must be empty, and the intermediate position must
+	have another peg.
 	"""
 	midPos = self.getNextPosition(oldPos, direction)
 	newPos = self.getNextPosition(midPos, direction)
 	# 1 is a peg, and 0 is a hole
-	# Since oldPos is valid, don't use bounds-checked
-	# indexing for it
+	# Since oldPos is valid, don't use bounds-checked indexing for it
 	return (self.state[oldPos] == self[midPos] == 1
 		and self[newPos] == 0)
 \end{lstlisting}
@@ -144,18 +143,15 @@ def is_validMove(self, oldPos, direction):
 @staticmethod
 def getNextPosition(oldPos, direction):
 	"""
-	Return the new position after moving in the given
-	direction (-7 is north/up, 1 is east/right, 7 is south/
-	down, and -1 is west/left). Invalid movements outside
-	the bounds of the board will return positions such that
-	is_corner(position) returns True.
+	Return the new position after moving in the given direction
+	(-7 is north/up, 1 is east/right, 7 is south/down, and -1 is
+	west/left). Invalid movements outside the bounds of the board
+	will return positions such that is_corner(position) returns True.
 	"""
 	newPos = oldPos + direction
-	# If direction is 7 or -7 (changing rows),
-	# newPos is already correct
+	# If changing rows (north or south), newPos is already correct
 	return (newPos if direction == 7 or direction == -7 or
-	# If direction is 1 or -1 (changing columns),
-	# the row should not change
+	# If changing columns (east or west), the row should not change
 		newPos // 7 == oldPos // 7 else -1)
 \end{lstlisting}
 
@@ -165,9 +161,8 @@ def getNextPosition(oldPos, direction):
 \begin{lstlisting}[frame=single]
 def getNextState(self, oldPos, direction, pegSol):
 	"""
-	Return a child node of the current one, created by a
-	given valid move. The given game has its count of
-	expanded nodes incremented.
+	Return a child node of the current one, created by a given valid
+	move. The given game has its count of expanded nodes incremented.
 	"""
 	pegSol.nodesExpanded += 1
 	if not self.is_validMove(oldPos, direction):
@@ -178,7 +173,7 @@ def getNextState(self, oldPos, direction, pegSol):
 	# x[:] makes a copy of x (necessary to avoid mutating
 	# self.state when updating childState)
 	childState = self.state[:]
-	childState[oldPos] = 0 # The peg moves from here
+	childState[oldPos] = 0 # The peg moves from here, leaving a hole
 	childState[midPos] = 0 # The jumped-over peg is removed
 	childState[newPos] = 1 # The peg moves to this hole
 	# Convert positions back into pairs for printing
@@ -198,7 +193,10 @@ We were required to implement our search functions and heuristics in
 We implemented ID-DFS straightforwardly, based on figure 3.17 (section 3.4,
 page 88) and figure 3.18 (section 3.4, page 89) in the textbook. However, we
 also maintain a set of explored nodes (modulo symmetry) to avoid revisiting,
-which helps prune the search tree.
+which helps prune the search tree. Nodes for which a depth-limited search
+fails to find a solution (because one does not exist, not because it was cut
+off before finding one) are kept in a second explored set which is reused
+for the even deeper searches.
 
 We implemented A* based on figure 3.14 (section 3.4, page 84) in the textbook.
 However, we take the set of \(explored\) nodes modulo symmetry to further prune
@@ -212,13 +210,13 @@ seven can be pruned.)
 \begin{lstlisting}[frame=single]
 def heuristicOne(node):
 	"""
-	This heuristic counts the number of "dangling" pegs (those
-	without any neighbors) and adds it to twice the number of
-	pegs remaining on the board.
+	This heuristic counts the number of "dangling" pegs (those without
+	any neighbors) and adds it to twice the number of pegs remaining
+	on the board.
 
-	We penalize dangling pegs because they cannot be removed
-	without first moving another peg to a neighboring hole,
-	which may not be possible.
+	We penalize dangling pegs because they cannot be removed without
+	first moving another peg to a neighboring hole, which may not be
+	possible.
 	"""
 	num_dangling = 0
 	for i in xrange(49):
@@ -237,23 +235,20 @@ def heuristicOne(node):
 \begin{lstlisting}[frame=single]
 def heuristicTwo(node):
 	"""
-	This heuristic sums the estimated difficulty of removing
-	each peg and adds it to twice the number of pegs remaining
-	on the board.
+	This heuristic sums the estimated difficulty of removing each peg
+	and adds it to twice the number of pegs remaining on the board.
 
-	We chose the difficulty values after some trial and error.
-	The outer four areas of the board are generally less
-	maneuverable than the center, and further from the eventual
-	goal of the very central hole. This applies especially to
-	the eight outer corners, which have fewer neighbors to jump
-	over. The four inner corners are only slightly easier, since
-	they have more neighbors but are still not in the ideal rows
-	or columns. (Note that pegs in the outer and inner corners
-	can only move within those positions, never to a non-corner
-	hole.) The center peg is the end goal of the game, but prior
-	to that having a peg sit there is not quite useful (since if
-	you are left with two pegs and one is in the center, the
-	game is unsolvable).
+	We chose the difficulty values after some trial and error. The outer
+	four areas of the board are generally less maneuverable than the
+	center, and further from the eventual goal of the very central hole.
+	This applies especially to the eight outer corners, which have fewer
+	neighbors to jump over. The four inner corners are only slightly
+	easier, since they have more neighbors but are still not in the ideal
+	rows or columns. (Note that pegs in the outer and inner corners can
+	only move within those positions, never to a non-corner hole.) The
+	center peg is the end goal of the game, but prior to that having a
+	peg sit there is not quite useful (since if you are left with two
+	pegs and one is in the center, the game is unsolvable).
 	"""
 	difficulties = [
 		0, 0, 4, 1, 4, 0, 0,
@@ -363,6 +358,7 @@ We compared the performance of our different search algorithms on a few test cas
 \item The given 6-peg \(game.txt\)
 \item The 32-peg central game
 \item The mean expanded node count of all 110 test boards
+\item The mean count without the central game outlier
 \item The median count of all 110 test boards
 \end{enumerate}
 
@@ -372,14 +368,16 @@ The performance results for our different search algorithms are shown in table \
 \centering
 \begin{tabular}{| l | r | r | r | r | r | r | r | r |}
 \hline
-\textbf{Test case} & \textbf{ID-DFS} & \textbf{A*1} & \textbf{A*2} & \textbf{A*Base} &
-	\textbf{A*Manhattan} & \textbf{A*Diff1} & \textbf{A*Diff2} \\
+\textbf{Test case} & \textbf{ID-DFS} & \textbf{A*1} & \textbf{A*2} &
+	\textbf{A*Base} & \textbf{A*ManD} & \textbf{A*Alt1} & \textbf{A*Alt2} \\
 \hline
 game.txt & 50 & 16 & 13 & 13 & 19 & 13 & 19 \\
 \hline
 Central game & MemoryError & 4,713,300 & 103,402 & 26,807 & 1,801,655 & 170 & 530,402 \\
 \hline
 Mean & 1,979,736 & 47,084 & 3,388 & 5,146 & 19,201 & 4,394 & 8,917 \\
+\hline
+Mean w/o central & 1,979,736 & 4,275 & 2,470 & 4,948 & 2,848 & 4,433 & 4,133 \\
 \hline
 Median & 6,417 & 74 & 98 & 92 & 95 & 128 & 114 \\
 \hline
@@ -392,7 +390,7 @@ We also tested each algorithm on a board with no solution (two noncontiguous peg
 They all succeeded in printing ``Impossible to solve'' instead of a solution move
 trace, without crashing or infinitely looping.
 
-The heuristics A*2, A*Manhattan, A*Diff1, and A*Diff2 were conceptually very
+The heuristics A*2, A*ManD, A*Alt1, and A*Alt2 were conceptually very
 similar, so we only wanted to submit one of them. Our tests found that A*2 was
 the most efficient: it had the lowest mean count (of all the algorithms), and
 while A*Manhattan had a slightly lower median count, it could not solve the
@@ -412,20 +410,26 @@ moves (north, south, east, and west). For several large test cases, if we test
 those four directions in a different order, performance can significantly vary.
 There are $4!$, or 24 possible orders, so we tested all 24 of them against all
 six search algorithms. The 24 possibilities break down into two categories:
-``opposite order first'' (such as ``north, south, east, west'') and``orthogonal
-order first'' (such as ``north, east, south, west''). By plotting the results in
-figure \ref{fig_boxplot}, it is clear that the ``orthogonal order first'' category
-had slightly better performance.
+``opposite directions first'' (such as ``north, south, east, west,'' where
+``south'' is opposite ``north'') and``orthogonal directions first'' (such as
+``north, east, south, west,'' where ``east'' is orthogonal to ``north''). By
+plotting the results in figure \ref{fig_dir_order}, it is clear that the
+``orthogonal directions first'' category had slightly better average
+performance, but one outlier that did noticeably worse. We chose to test the
+directions orthogonal-first (specifically ``south, east, north, west'').
 
 \begin{figure}[h!]
 \centering
 \includegraphics[height=3.5in, width=4.5in]{figs/boxplot.png}
-\caption{Box plot for two sets of summations}
-\label{fig_boxplot}
+\caption{Box plot for two categories of direction order}
+\label{fig_dir_order}
 \end{figure}
 
 \section{Conclusion}
 
-TODO: conclusion
+We fulfilled the requirements to implement the three search algorithms, changing
+only the parts of the code in specified locations, with appropriate comments.
+Our algorithms correctly handle all test cases, including impossible boards, and
+they perform well even on large boards with the help of pruning symmetric states.
 
 \end{document}
